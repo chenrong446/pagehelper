@@ -1,0 +1,78 @@
+<!DOCTYPE>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>分页演示(jquery)</title>
+    </head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="bootstrap.css">
+    <script src="jquery-2.2.4.js"></script>
+    <script src="crpage.js"></script>
+
+    <body>
+        <div>
+            <p>jquery实例</p>
+            <h4 class="title">学生列表</h4>
+            <div class="crpage"></div>
+            <div>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>姓名</td>
+                            <td>年龄</td>
+                            <td>居住城市</td>
+                            <td>所在学校</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ID</td>
+                            <td>姓名</td>
+                            <td>年龄</td>
+                            <td>居住城市</td>
+                            <td>所在学校</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <script>
+            /**jquery 数据渲染**/
+            $(function() {
+                var temp = '<tr>' +
+                    '<td>[id]</td>' +
+                    '<td>[name]</td>' +
+                    '<td>[age]</td>' +
+                    '<td>[city]</td>' +
+                    '<td>[school]</td>' +
+                    '</tr>';
+
+                CRPage.init(function(p1, p2) {
+                    /*  p1为起始序号，p2为一页显示数量  */
+                    var pageNum = p1 / p2 + 1; //pageNum传值根据后端接收参数而定
+                    var data = { pageNum: pageNum, pageSize: p2 };
+                    $.get('http://125.64.9.228:8080/demo/test/get',
+                        data,
+                        function(data) {
+                            console.log(data);
+                            if (p1 == 0) { //在查第一页时保存获取下来的总数，也可以单独一个统计总数的接口执行CRPage.savecount(count);
+                                var count = data.count;
+                                CRPage.savecount(count);
+                            }
+                            $('table tbody').empty();
+                            if (data.result.content) {
+                                data.result.content.forEach(r => {
+                                    var tr = temp.replace('[id]', r.id).replace('[name]', r.name).replace('[age]', r.age)
+                                        .replace('[city]', r.city).replace('[school]', r.school);
+                                    $('table tbody').append(tr);
+                                })
+                            }
+                        },
+                        'json');
+                }, 20);
+            });
+        </script>
+    </body>
+
+</html>

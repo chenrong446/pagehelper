@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>分页演示(ng)</title>
+    </head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="bootstrap.css">
+    <script src="jquery-2.2.4.js"></script>
+    <script src="ionic_angular.js"></script>
+    <!-- <script src="https://cdn.staticfile.org/angular.js/1.4.6/angular.min.js"></script> -->
+    <script src="crpage.js"></script>
+
+    <body>
+        <div ng-app="myApp" ng-controller="myCtrl">
+            <p>{{title}}</p>
+            <h4 class="title">学生列表</h4>
+            <div class="crpage"></div>
+            <div>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>姓名</td>
+                            <td>年龄</td>
+                            <td>居住城市</td>
+                            <td>所在学校</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="d in data">
+                            <td>{{d.id}}</td>
+                            <td>{{d.name}}</td>
+                            <td>{{d.age}}</td>
+                            <td>{{d.city}}</td>
+                            <td>{{d.school}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <script>
+            /**angularjs 数据渲染**/
+            var app = angular.module('myApp', ['ionic']);
+            app.controller('myCtrl', function($scope,$http) {
+                $scope.title='angularjs实例';
+                CRPage.init(function(p1, p2) {
+                    /*  p1为起始序号，p2为一页显示数量  */
+                    var pageNum = p1 / p2 + 1; //pageNum传值根据后端接收参数而定
+                    var data = { pageNum: pageNum, pageSize: p2 };
+                    $http({
+                        method: 'GET',
+                        url: 'http://125.64.9.228:8080/demo/test/get',
+                        params: data
+                    }).success(function successCallback(data) {
+                        console.log(data);
+                        if (p1 == 0) { //在查第一页时保存获取下来的总数，也可以单独一个统计总数的接口执行CRPage.savecount(count);
+                            var count = data.count;
+                            CRPage.savecount(count);
+                        }
+                        if (data.result.content) {
+                            $scope.data=data.result.content;
+                        }
+                    }, function errorCallback(response) {
+
+                    });
+                }, 20);
+            });
+        </script>
+    </body>
+
+</html>
